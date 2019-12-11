@@ -3,17 +3,28 @@ import R from 'ramda';
 const { split, compose, not, map, filter, sum } = R;
 import fs from 'fs';
 
-/// Utils
+// Read in data and clean it
 const splitTxtFile = split('\r\n');
 const isNotNaN = compose(not, isNaN);
-const getFuel = mass => Math.floor(mass / 3) - 2
 
-/// Program
-// Read in data and clean it
 const txt = fs.readFileSync('./input.txt', 'utf8');
-const data = filter(isNotNaN, map(parseInt, splitTxtFile(txt)));
-// Calculate result
-const clean = map(getFuel, data);
-const result = sum(clean);
+const inputData = filter(isNotNaN, map(parseInt, splitTxtFile(txt)));
 
-console.log(result); // -> 3391707
+/// PART 01
+const getFuel = mass => Math.floor(mass / 3) - 2;
+
+const amountsFuel = map(getFuel, inputData);
+const result01 = sum(amountsFuel);
+
+console.log(result01); // -> 3391707
+
+/// PART 02
+const getFuelRec = mass => {
+  const newMass = getFuel(mass);
+  return newMass <= 0 ? 0 : newMass + getFuelRec(newMass);
+}
+
+const amountsFuelRec = map(getFuelRec, inputData);
+const result02 = sum(amountsFuelRec);
+
+console.log(result02); // -> 5084676
