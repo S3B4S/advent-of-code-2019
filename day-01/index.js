@@ -7,7 +7,7 @@ import fs from 'fs';
 const splitTxtFile = split('\r\n');
 const isNotNaN = compose(not, isNaN);
 
-const txt = fs.readFileSync('./input.txt', 'utf8');
+const txt = fs.readFileSync('./day-01/input.txt', 'utf8');
 const inputData = filter(isNotNaN, map(parseInt, splitTxtFile(txt)));
 
 /// PART 01
