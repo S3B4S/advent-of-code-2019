@@ -65,7 +65,6 @@ console.log(deepEquality(run([1,1,1,4,99,5,6,0,99]), [30,1,1,4,2,5,6,0,99]))
 console.log(run(inputData)[0]); // -> 5110675
 
 /// Part 02
-
 const find19690720 = list => {
   for (let noun = 0; noun < 100; noun++) {
     for (let verb = 0; verb < 100; verb++) {
