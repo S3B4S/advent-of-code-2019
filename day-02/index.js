@@ -1,8 +1,6 @@
-// Inline destructing unfortunately didn't work for Node 13.3
-import R from 'ramda';
-const { add, multiply } = R;
+import { add, multiply } from 'ramda';
 
-/// Part 01
+/// Part 1
 const OPCODES = {
   1: add,
   2: multiply,
@@ -36,7 +34,7 @@ const run = list => {
   return copy;
 }
 
-/// Part 02
+/// Part 2
 const find19690720 = list => {
   for (let noun = 0; noun < 100; noun++) {
     for (let verb = 0; verb < 100; verb++) {

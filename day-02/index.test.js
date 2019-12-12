@@ -1,6 +1,6 @@
-import { run, find19690720 } from './index';
-import { compose, map, split, not, filter } from 'ramda';
 import fs from 'fs';
+import { compose, map, split, not, filter } from 'ramda';
+import { run, find19690720 } from './index';
 
 // Read in data and clean it
 const isNotNaN = compose(not, isNaN);
