@@ -1,6 +1,6 @@
 # Advent of Code 2019
 
-My attempts at tackling the challenges of [this years Advent of Code](https://adventofcode.com/2019]! :)
+My attempts at tackling the challenges of [this years Advent of Code](https://adventofcode.com/2019)! :)
 
 ## Set up locally
 
