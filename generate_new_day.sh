@@ -28,13 +28,11 @@ import { } from './index';
 const txt = fs.readFileSync('./${new_dir}/input.txt', 'utf8');
 const inputData; // Create input data as appropriate
 
-
 test('Pass the examples for part 1', () => {
 });
 
 test('Pass the puzzle input for part 1', () => {
 });
-
 
 test('Pass the examples for part 2', () => {
 });
