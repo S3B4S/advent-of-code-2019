@@ -1,12 +1,12 @@
 # Advent of Code 2019
 
-My attempts at tackling the challenges of [https://adventofcode.com/2019](this years Advent of Code)! :)
+My attempts at tackling the challenges of [this years Advent of Code](https://adventofcode.com/2019]! :)
 
 ## Set up locally
 
 1. Clone the repository
 ```
-$ git clone <URL>
+$ git clone https://github.com/S3B4S/advent-of-code-2019.git
 ```
 2. Run `npm i`
 
