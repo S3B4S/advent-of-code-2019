@@ -57,11 +57,6 @@ const deepEquality = (list1, list2) => {
   return true;
 }
 
-console.log(deepEquality(run([1,0,0,0,99]), [2,0,0,0,99]))
-console.log(deepEquality(run([2,3,0,3,99]), [2,3,0,6,99]))
-console.log(deepEquality(run([2,4,4,5,99,0]), [2,4,4,5,99,9801]))
-console.log(deepEquality(run([1,1,1,4,99,5,6,0,99]), [30,1,1,4,2,5,6,0,99]))
-
 console.log(run(inputData)[0]); // -> 5110675
 
 /// Part 02
@@ -80,3 +75,5 @@ const find19690720 = list => {
 
 const [noun, verb] = find19690720(inputData);
 console.log(100 * noun + verb); // -> 4847
+
+export { run };
