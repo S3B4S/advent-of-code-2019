@@ -1,4 +1,4 @@
-import { reduce, splitAt, uniqBy } from 'ramda';
+import { map, reduce, splitAt, uniq, min } from 'ramda';
 
 /// Part 1
 // Point :: { x, y } with x & y ints
@@ -23,15 +23,23 @@ const generatePoints = instructions => {
       lastPoint = newPoint;
     }
     return acc
-  }, [{ x: 0, y: 0 }], instructions)
-  console.log(points);
-  return uniqBy(({ x, y }) => ({ x, y }), points);
+  }, [{ x: 0, y: 0 }], instructions);
+  
+  return uniq(points);
 }
 
-const intersectionPoint = (instructionsLine1, instructionsLine2) => {
-  const intersectionPoints = [];
+const manhattenDistance = ({ x, y }) => Math.abs(x) + Math.abs(y);
+
+const intersectionPoint = (instructionsWire1, instructionsWire2) => {
+  const points1 = generatePoints(instructionsWire1);
+  const points2 = generatePoints(instructionsWire2);
+
+  const sharedPoints = points1.filter((point => points2.some(({ x, y }) => x === point.x && y === point.y )));
+  sharedPoints.shift(); // Remove { x: 0, y: 0 }
+  const manhattenDistances = map(manhattenDistance, sharedPoints);
+  return reduce(min, Infinity, manhattenDistances);
 }
 
 /// Part 2
 
-export { generatePoints }
+export { generatePoints, intersectionPoint }
