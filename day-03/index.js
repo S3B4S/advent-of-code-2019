@@ -1,4 +1,4 @@
-import { map, reduce, splitAt, uniq, min } from 'ramda';
+import { map, reduce, splitAt, min, zip, add, compose } from 'ramda';
 
 /// Part 1
 // Point :: { x, y } with x & y ints
@@ -10,6 +10,12 @@ const DIRECTIONS = {
   D: ({x, y}) => ({ x, y: y - 1 }),
   L: ({x, y}) => ({ x: x - 1, y }),
 }
+
+// pointsEqual :: Point -> Point -> Bool
+const pointsEqual = (point1, point2) => point1.x === point2.x && point1.y === point2.y;
+
+// manhattenDistance :: Point -> Int
+const manhattenDistance = ({ x, y }) => Math.abs(x) + Math.abs(y);
 
 // xIntersection :: Line -> Point -> Bool
 const xProjectsOnLine = (point, [point1, point2]) =>
@@ -38,9 +44,6 @@ const mightIntersect = (line1, line2) => {
     yProjectsOnLine(point4, line1)
   )
 }
-
-// manhattenDistance :: Point -> Int
-const manhattenDistance = ({ x, y }) => Math.abs(x) + Math.abs(y);
 
 // turningPoints :: [Instruction] -> [Point]
 const turningPoints = instructions => {
@@ -75,12 +78,12 @@ const direction = ([point1, point2]) => {
 // allPoints :: Line -> [Point]
 const allPoints = line => {
   const directionLine = direction(line);
-  const [startingPoint, endingPoint] = line;
+  const [startPoint, endPoint] = line;
   
-  const allPoints = [startingPoint];
-  let currentPoint = startingPoint;
+  const allPoints = [startPoint];
+  let currentPoint = startPoint;
 
-  while (currentPoint.x !== endingPoint.x || currentPoint.y !== endingPoint.y) {
+  while (!pointsEqual(currentPoint, endPoint)) {
     const op = DIRECTIONS[directionLine];
     currentPoint = op(currentPoint);
     allPoints.push(currentPoint);
@@ -96,19 +99,16 @@ const commonPoints = (line1, line2) => {
   return pointsLine1.filter(point => pointsLine2.some(point2 => point.x === point2.x && point.y === point2.y));
 }
 
-// distanceClosestCommonPoint :: [Instruction] -> [Instruction] -> Int
-const distanceClosestCommonPoint = (instructionsWire1, instructionsWire2) => {
-  let turningPointsWire1 = turningPoints(instructionsWire1);
-  let turningPointsWire2 = turningPoints(instructionsWire2);
-
+// allCommonPoints :: [Point] -> [Point] -> [Point]
+const allCommonPoints = (turningPoints1, turningPoints2) => {
   let allCommonPoints = [];
-  for (let i = 0; i < turningPointsWire1.length - 1; i++) {
-    const point1 = turningPointsWire1[i];
-    const point2 = turningPointsWire1[i + 1];
+  for (let i = 0; i < turningPoints1.length - 1; i++) {
+    const point1 = turningPoints1[i];
+    const point2 = turningPoints1[i + 1];
 
-    for (let j = 0; j < turningPointsWire2.length - 1; j ++) {
-      const point3 = turningPointsWire2[j];
-      const point4 = turningPointsWire2[j + 1];
+    for (let j = 0; j < turningPoints2.length - 1; j ++) {
+      const point3 = turningPoints2[j];
+      const point4 = turningPoints2[j + 1];
 
       const line1 = [point1, point2];
       const line2 = [point3, point4];
@@ -120,10 +120,52 @@ const distanceClosestCommonPoint = (instructionsWire1, instructionsWire2) => {
   }
 
   allCommonPoints.shift(); // Remove { x: 0; y: 0 }
-  const manhattenDistances = map(manhattenDistance, allCommonPoints);
+  return allCommonPoints;
+}
+
+// distanceClosestCommonPoint :: [Instruction] -> [Instruction] -> Int
+const distanceClosestCommonPoint = (instructionsWire1, instructionsWire2) => {
+  const  turningPointsWire1 = turningPoints(instructionsWire1);
+  const  turningPointsWire2 = turningPoints(instructionsWire2);
+  const commonPoints = allCommonPoints(turningPointsWire1, turningPointsWire2);
+  const manhattenDistances = map(manhattenDistance, commonPoints);
   return reduce(min, Infinity, manhattenDistances);
 }
 
 /// Part 2
+// walkPathUntilPoint :: [Instruction] -> Point -> Int
+const amountStepsUntilPoint = (instructions, endPoint) => {
+  let steps = 0;
+  let currentPoint = { x: 0, y: 0 };
+  for (const instruction of instructions) {
+    const [direction, amount] = splitAt(1, instruction);
+    const op = DIRECTIONS[direction];
 
-export { distanceClosestCommonPoint, mightIntersect }
+    for (let i = 0; i < amount && !pointsEqual(currentPoint, endPoint); i++) {
+      currentPoint = op(currentPoint);
+      steps = steps + 1;
+    }
+    if (pointsEqual(currentPoint, endPoint)) break;
+  }
+  
+  return steps;
+}
+
+// allAmountsSteps :: [Instruction] -> [Point] -> [Int]
+const allAmountsSteps = instructions => compose(
+  map(([instructions, point]) => amountStepsUntilPoint(instructions, point)),
+  map(x => [instructions, x])
+)
+
+// leastStepsCommonPoint :: [Instruction] -> [Instruction] -> Int
+const leastStepsCommonPoint = (instructionsWire1, instructionsWire2) => {
+  const turningPointsWire1 = turningPoints(instructionsWire1);
+  const turningPointsWire2 = turningPoints(instructionsWire2);
+  const commonPoints = allCommonPoints(turningPointsWire1, turningPointsWire2);
+  const stepsWire1 = allAmountsSteps(instructionsWire1)(commonPoints);
+  const stepsWire2 = allAmountsSteps(instructionsWire2)(commonPoints);
+  const stepsCombined = map(([x, y]) => add(x, y), zip(stepsWire1, stepsWire2));
+  return reduce(min, Infinity, stepsCombined);  
+}
+
+export { mightIntersect, distanceClosestCommonPoint, leastStepsCommonPoint }
