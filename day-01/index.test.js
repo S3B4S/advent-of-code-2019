@@ -3,7 +3,7 @@ import { split, compose, not, map, filter } from 'ramda';
 import { totalFuel, totalFuelRec } from './index';
 
 // Read in data and clean it
-const splitTxtFile = split('\r\n');
+const splitTxtFile = split('\n');
 const isNotNaN = compose(not, isNaN);
 
 const txt = fs.readFileSync('./day-01/input.txt', 'utf8');
