@@ -1,63 +1,37 @@
-import { } from 'ramda';
+import { reduce, splitAt, uniqBy } from 'ramda';
 
 /// Part 1
-class Point {
-  constructor(x, y) {
-    this.x = x;
-    this.y = y;
-  }
+// Point :: { x, y } with x & y ints
 
-  getTuple() { return [this.x, this.y]; }
+const DIRECTIONS = {
+  U: ({x, y}) => ({ x, y: y + 1 }),
+  R: ({x, y}) => ({ x: x + 1, y }),
+  D: ({x, y}) => ({ x, y: y - 1 }),
+  L: ({x, y}) => ({ x: x - 1, y }),
 }
 
-class Line {
-  constructor(point1, point2) {
-    this.point1 = point1;
-    this.point2 = point2;
-  }
-
-  getTuple() { return [this.point1, this.point2]; }
+// generatePoints :: [instructions] -> [Point]
+const generatePoints = instructions => {
+  const points = reduce((acc, instruction) => {
+    const [direction, amount] = splitAt(1, instruction);
+    const op = DIRECTIONS[direction];
+    
+    let lastPoint = acc[acc.length - 1];
+    for (let i = 0; i < amount; i++) {
+      const newPoint = op(lastPoint);
+      acc.push(newPoint);
+      lastPoint = newPoint;
+    }
+    return acc
+  }, [{ x: 0, y: 0 }], instructions)
+  console.log(points);
+  return uniqBy(({ x, y }) => ({ x, y }), points);
 }
 
-// getSlope :: Line -> Int
-const getSlope = line => {
-  const [point1, point2] = line.getTuple();
-  const [x1, y1] = point1.getTuple();
-  const [x2, y2] = point2.getTuple();
-  return (y2 - y1) / (x2 - x1);
-}
-
-const getYIntercept = (point, slope) => point.y - slope * point.x;
-
-// doIntersect :: Line -> Line -> Bool
-const doIntersect = (line1, line2) => {
-  const slope1 = getSlope(line1);
-  const yIntercept1 = getYIntercept(line1, slope1);
-  const slope2 = getSlope(line2);
-  const yIntercept2 = getYIntercept(line2, slope2);
-
-  console.log('============');
-  console.log(slope1);
-  console.log(slope2);
-  // If slope is equal, they don't intersect
-  if (slope1 - slope2 === 0) return false;
-
-  // Assume they intersect (thus, x1 === x2 && y1 === y2)
-  const x = (yIntercept2 - yIntercept1) / (slope1 - slope2)
-  const hypoY1 = slope1 * x + yIntercept1;
-  const hypoY2 = slope2 * x + yIntercept2;
-  console.log(x);
-  console.log(hypoY1);
-  console.log(hypoY2);
-
-  return hypoY1 === hypoY2;
-}
-
-const intersectionPoint = () => {
+const intersectionPoint = (instructionsLine1, instructionsLine2) => {
   const intersectionPoints = [];
-
 }
 
 /// Part 2
 
-export { getSlope, getYIntercept, intersectionPoint, doIntersect, Point, Line }
+export { generatePoints }
