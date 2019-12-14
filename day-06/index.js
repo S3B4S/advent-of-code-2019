@@ -8,40 +8,32 @@ import { split, compose, reduce, map, isEmpty } from 'ramda';
 * }
 */
 const addNode = (id, nodes) => {
-  return nodes.set(id, {
+  nodes.set(id, {
     id,
-    parentId: '-1',
-    childrenIds: [],
+    parent: {},
+    children: [],
   });
 }
 
 const addRelation = (parentId, childId, nodes) => {
   const parentNode = nodes.get(parentId);
   const childNode = nodes.get(childId);
-  const newParent = {
-    ...parentNode,
-    childrenIds: [childId, ...parentNode.childrenIds],
-  }
-  const newChild = {
-    ...childNode,
-    parentId,
-  }
-  nodes.set(childId, newChild);
-  nodes.set(parentId, newParent);
-  return nodes;
+
+  parentNode.children = [childNode, ...parentNode.children];
+  childNode.parent = parentNode;
 }
 
-const countOrbitsOfNode = (node, nodes) => {
-  if (node.parentId === '-1') return 0;
-  return 1 + countOrbitsOfNode(nodes.get(node.parentId), nodes);
+const countOrbitsOfNode = node => {
+  if (isEmpty(node.parent)) return 0;
+  return 1 + countOrbitsOfNode(node.parent);
 }
 
-const countOrbits = tree => reduce((total, node) => total + countOrbitsOfNode(node, tree), 0, tree.values());
+const countOrbits = tree => reduce((total, node) => total + countOrbitsOfNode(node), 0, tree.values());
 
 const createNodes = reduce((acc, [parentId, childId]) => {
-  if (!acc.has(parentId)) { acc = addNode(parentId, acc); }
-  if (!acc.has(childId)) { acc = addNode(childId, acc); }
-  acc = addRelation(parentId, childId, acc);
+  if (!acc.has(parentId)) { addNode(parentId, acc); }
+  if (!acc.has(childId)) { addNode(childId, acc); }
+  addRelation(parentId, childId, acc);
   return acc;
 }, new Map())
 
