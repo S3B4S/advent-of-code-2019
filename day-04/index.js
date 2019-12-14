@@ -1,4 +1,4 @@
-import { map, compose, range, split, countBy, identity, toString } from 'ramda';
+import { map, compose, range, split, countBy, identity, toString, tap, reduceWhile, __ } from 'ramda';
 
 /// Part 1
 // is6digit :: String -> Bool
@@ -14,25 +14,22 @@ const containsDouble = digits => {
   return false;
 }
 
-// isIncreasing :: String -> Bool
-const isIncreasing = digits => {
-  const ints = compose(
-    map(parseInt),
-    split(''),
-  )(digits);
-  for (let i = 1; i < ints.length; i++) {
-    if (ints[i] < ints[i - 1]) return false;
-  }
-  return true;
-}
+const isIncreasing = digits => compose(
+  reduceWhile((acc, _) => acc.increasing, (acc, curr) => ({
+    lastEl: curr,
+    increasing: acc.lastEl <= curr
+  }), { lastEl: -1, increasing: true }),
+  map(parseInt),
+  split('')
+)(digits).increasing
 
 // meetsCriteria :: String -> Bool
-const meetsCriteria = digits => is6digit(digits) && containsDouble(digits) && isIncreasing(digits);
+const meetsCriteria1 = digits => is6digit(digits) && containsDouble(digits) && isIncreasing(digits);
 
 // countPasswordsValidity :: String -> Obj
 const countPasswordsValidity = compose(
   countBy(identity),
-  map(compose(meetsCriteria, toString)),
+  map(compose(meetsCriteria1, toString)),
   ([low, high]) => range(low, high),
   map(parseInt),
   split('-')
@@ -41,5 +38,10 @@ const countPasswordsValidity = compose(
 const amountPasswordsValid = inputRange => countPasswordsValidity(inputRange).true;
 
 /// Part 2
+const accumulateChars = digits => {
+}
 
-export { meetsCriteria, amountPasswordsValid }
+// meetsCriteria :: String -> Bool
+const meetsCriteria2 = digits => is6digit(digits) && containsExactDouble(digits) && isIncreasing(digits);
+
+export { meetsCriteria1, meetsCriteria2, amountPasswordsValid }
