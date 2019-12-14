@@ -16,9 +16,12 @@ const containsDouble = digits => {
 
 // isIncreasing :: String -> Bool
 const isIncreasing = digits => {
-  const ints = map(parseInt, digits.split(''));
-  for (let i = 0; i < ints.length - 1; i++) {
-    if (ints[i + 1] < ints[i]) return false;
+  const ints = compose(
+    map(parseInt),
+    split(''),
+  )(digits);
+  for (let i = 1; i < ints.length; i++) {
+    if (ints[i] < ints[i - 1]) return false;
   }
   return true;
 }
