@@ -14,14 +14,13 @@ const containsDouble = digits => {
   return false;
 }
 
-const isIncreasing = digits => compose(
-  reduceWhile((acc, _) => acc.increasing, (acc, curr) => ({
-    lastEl: curr,
-    increasing: acc.lastEl <= curr
-  }), { lastEl: -1, increasing: true }),
+const every = fn => list => list.every(fn);
+
+const isIncreasing = compose(
+  every((number, index, list) => index === 0 || number >= list[index - 1]),
   map(parseInt),
   split('')
-)(digits).increasing
+)
 
 // meetsCriteria :: String -> Bool
 const meetsCriteria1 = digits => is6digit(digits) && containsDouble(digits) && isIncreasing(digits);
