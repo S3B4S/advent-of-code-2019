@@ -1,6 +1,4 @@
-import fs from 'fs';
-import { split } from 'ramda';
-import { meetsCriteria1, amountPasswordsValid } from './index';
+import { meetsCriteria1, meetsCriteria2, amountPasswordsValid1, amountPasswordsValid2 } from './index';
 
 const inputData = '367479-893698';
 
@@ -11,14 +9,15 @@ test('Pass the examples for part 1', () => {
 });
 
 test('Pass the puzzle input for part 1', () => {
-  // expect(amountPasswordsValid(inputData)).toEqual(495);
+  expect(amountPasswordsValid1(inputData)).toEqual(495);
 });
 
 test('Pass the examples for part 2', () => {
-  // expect(meetsCriteria1('112233')).toEqual(true);
-  // expect(meetsCriteria1('123444')).toEqual(false);
-  // expect(meetsCriteria1('111122')).toEqual(true); 
+  expect(meetsCriteria2('112233')).toEqual(true);
+  expect(meetsCriteria2('123444')).toEqual(false);
+  expect(meetsCriteria2('111122')).toEqual(true); 
 });
 
 test('Pass the puzzle input for part 2', () => {
+  expect(amountPasswordsValid2(inputData)).toEqual(305);
 });
