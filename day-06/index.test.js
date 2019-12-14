@@ -26,7 +26,7 @@ test('Pass the examples for part 1', () => {
 });
 
 test('Pass the puzzle input for part 1', () => {
-  // expect(entry1(inputData)).toEqual(0)
+  expect(entry1(inputData)).toEqual(0)
 });
 
 test('Pass the examples for part 2', () => {

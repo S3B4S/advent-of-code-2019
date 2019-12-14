@@ -1,4 +1,4 @@
-import { split, compose, reduce, map, isEmpty } from 'ramda';
+import { split, compose, reduce, map, isEmpty, tap } from 'ramda';
 
 /*
 * Node = {
@@ -15,7 +15,7 @@ const addNode = (id, nodes) => {
   });
 }
 
-const addRelation = (parentId, childId, nodes) => {
+const addEdge = (parentId, childId, nodes) => {
   const parentNode = nodes.get(parentId);
   const childNode = nodes.get(childId);
 
@@ -30,16 +30,16 @@ const countOrbitsOfNode = node => {
 
 const countOrbits = tree => reduce((total, node) => total + countOrbitsOfNode(node), 0, tree.values());
 
-const createNodes = reduce((acc, [parentId, childId]) => {
-  if (!acc.has(parentId)) { addNode(parentId, acc); }
-  if (!acc.has(childId)) { addNode(childId, acc); }
-  addRelation(parentId, childId, acc);
-  return acc;
+const createTree = reduce((tree, [parentId, childId]) => {
+  if (!tree.has(parentId)) { addNode(parentId, tree); }
+  if (!tree.has(childId)) { addNode(childId, tree); }
+  addEdge(parentId, childId, tree);
+  return tree;
 }, new Map())
 
 const entry1 = compose(
   countOrbits,
-  createNodes,
+  createTree,
   map(split(')'))
 )
 
