@@ -1,5 +1,4 @@
-import R from 'ramda';
-const { split, compose, reduce, map, isEmpty } = R;
+import { split, compose, reduce, map, isEmpty } from 'ramda';
 /*
 * Node = {
 *   id: Int,
@@ -39,4 +38,9 @@ const totalOrbits = compose(
   map(split(')'))
 );
 
-export { totalOrbits }
+const pathToRoot = (tree, node) => {
+  if (isEmpty(node.parent)) return [];
+  return [node.parent.id, ...pathToRoot(tree, node.parent)];
+}
+
+export { totalOrbits, pathToRoot, createTree }

@@ -1,6 +1,6 @@
 import fs from 'fs';
-import { split, isEmpty, filter, not, compose } from 'ramda';
-import { totalOrbits } from './index';
+import { split, isEmpty, filter, not, compose, map } from 'ramda';
+import { totalOrbits, pathToRoot, createTree } from './index';
 
 // Read in data and clean it
 const txt = fs.readFileSync('./day-06/input.txt', 'utf8');
@@ -16,38 +16,59 @@ afterEach(() => {
 
 test('Pass the examples for part 1', () => {
   expect(totalOrbits(cleanData(
-    "COM)B\n" +
-    "B)C\n" +
-    "C)D\n" +
-    "D)E\n" +
-    "E)F\n" +
-    "B)G\n" +
-    "G)H\n" +
-    "D)I\n" +
-    "E)J\n" +
-    "J)K\n" +
-    "K)L"))).toEqual(42);
+    'COM)B\n' +
+    'B)C\n' +
+    'C)D\n' +
+    'D)E\n' +
+    'E)F\n' +
+    'B)G\n' +
+    'G)H\n' +
+    'D)I\n' +
+    'E)J\n' +
+    'J)K\n' +
+    'K)L\n'))).toEqual(42);
 
   // Same data as above but in different order
   expect(totalOrbits(cleanData(
-    "COM)B\n" +
-    "D)E\n" +
-    "B)C\n" +
-    "C)D\n" +
-    "E)F\n" +
-    "E)J\n" +
-    "G)H\n" +
-    "J)K\n" +
-    "B)G\n" +
-    "D)I\n" +
-    "K)L"))).toEqual(42);
+    'COM)B\n' +
+    'D)E\n' +
+    'B)C\n' +
+    'C)D\n' +
+    'E)F\n' +
+    'E)J\n' +
+    'G)H\n' +
+    'J)K\n' +
+    'B)G\n' +
+    'D)I\n' +
+    'K)L\n'))).toEqual(42);
 });
 
 test('Pass the puzzle input for part 1', () => {
-  expect(totalOrbits(inputData)).toEqual(142915)
+  const tree = compose(
+    createTree,
+    map(split(')')),
+    cleanData
+  )(
+    'COM)B\n' +
+    'B)C\n' +
+    'C)D\n' +
+    'D)E\n' +
+    'E)F\n' +
+    'B)G\n' +
+    'G)H\n' +
+    'D)I\n' +
+    'E)J\n' +
+    'J)K\n' +
+    'K)L\n' +
+    'K)YOU\n' +
+    'I)SAN\n'
+  )
+  expect(pathToRoot(tree, tree['YOU'])).toEqual(['K', 'J', 'E', 'D', 'C', 'B', 'COM']);
+  expect(pathToRoot(tree, tree['COM'])).toEqual([]);
 });
 
-test('Pass the examples for part 2', () => {
+test('Path to root constructed properly', () => {
+  expect()
 });
 
 test('Pass the puzzle input for part 2', () => {
