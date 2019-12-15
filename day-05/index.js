@@ -69,8 +69,8 @@ const performOperation = (op, modes, startPointer, list) => {
 
 const parseInstruction = instruction => {
   let chars = toString(instruction);
-  // Beyond this an instruction has in between 1-5 chars
-  // missing chars are leading zeros
+  // An instruction has in between 1-5 chars
+  // missing chars are leading zeros and should be filled up to 5 chars
   while (chars.length !== 5) {
     chars = '0' + chars;
   }
