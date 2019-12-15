@@ -10,6 +10,10 @@ const cleanData = compose(
 )
 const inputData = cleanData(txt);
 
+afterEach(() => {
+  jest.clearAllMocks();
+});
+
 test('Pass the examples for part 1', () => {
   expect(totalOrbits(cleanData(
     "COM)B\n" +
@@ -40,7 +44,7 @@ test('Pass the examples for part 1', () => {
 });
 
 test('Pass the puzzle input for part 1', () => {
-  expect(totalOrbits(inputData)).toEqual(0)
+  expect(totalOrbits(inputData)).toEqual(142915)
 });
 
 test('Pass the examples for part 2', () => {
