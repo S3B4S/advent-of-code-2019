@@ -1,52 +1,84 @@
-import { add, multiply } from 'ramda';
+import { add, multiply, toString, reverse, map, curry } from 'ramda';
 
-/// Part 1
-const OPCODES = {
-  1: add,
-  2: multiply,
+const mapWithIndex = curry((fn, list) => list.map(fn));
+
+let USER_INPUT = 0;
+let OUTPUT = 0;
+
+// [function, incrementPointerBy]
+const OPERATIONS = {
+  '01': {
+    // Add and store at address
+    fn: curry((list, a, b, address) => { list[address] = a + b }),
+    incrementPointerBy: 4,
+  },
+  '02': {
+    // Multiply and store at address
+    fn: curry((list, a, b, address) => { list[address] = a * b }),
+    incrementPointerBy: 4,
+  },
+  '03': {
+    // Write input to address
+    fn: curry((list, address) => { list[address] = USER_INPUT }),
+    incrementPointerBy: 2,
+  },
+  '04': {
+    // Read from address and outputs it
+    fn: curry((list, address) => { OUTPUT = list[address] }),
+    incrementPointerBy: 2,
+  },
+  'READ': {
+    // Return position at address
+    fn: curry((list, address) => list[address]),
+  }
 }
 
-const performOperation = (startingIndex, opcode, list) => {
-  const op = OPCODES[opcode];
-  // Addresses
-  const firstAddress = list[startingIndex + 1];
-  const secondAddress = list[startingIndex + 2];
-  const outputAddress = list[startingIndex + 3];
-  // Values located at given addresses
-  const firstValue = list[firstAddress];
-  const secondValue = list[secondAddress];
-
-  const result = op(firstValue, secondValue);
-  list[outputAddress] = result;
+const PARAMETER_MODE = {
+  position: '0', // parameter interpreted as position where to retrieve value
+  immediate: '1', // parameter is the value itself
 }
 
-const run = list => {
+const performOperation = ([opcode, ...modes], startPointer, list) => {
+  const op = OPERATIONS[opcode].fn(list);
+  
+  const values = mapWithIndex((mode, i) => {
+    const currentPointer = startPointer + 1 + i;
+    const parameter = list[currentPointer];
+    if (mode === PARAMETER_MODE.immediate || i === 2 || opcode === '03' || opcode === '04') {
+      return parameter
+    } else if (mode === PARAMETER_MODE.position) {
+      return OPERATIONS['READ'].fn(list)(parameter)
+    }
+  }, modes);
+
+  op(...values);
+}
+
+const parseInstruction = opcode => {
+  const chars = toString(opcode);
+  if (chars.length === 1) return ['0' + chars, '0'];
+
+  // Beyond this an instruction has in between 2-5 chars
+  // missing chars are leading zeros
+  const [instructionChar1, instructionChar2, firstMode, secondMode, thirdMode] = reverse(chars);
+  const temp = [instructionChar2 + instructionChar1, firstMode, secondMode, thirdMode];
+  return map(char => !char ? '0' : char, temp);
+}
+
+const run = (list, input) => {  
+  USER_INPUT = input;
   const copy = [...list];
-  let opcode = copy[0];
+  let instruction = copy[0];
   let currentIndex = 0;
 
-  while (opcode !== 99) {
-    performOperation(currentIndex, opcode, copy);
-    currentIndex += 4;
-    opcode = copy[currentIndex];
+  while (instruction !== 99) {
+    const instructions = parseInstruction(instruction)
+    performOperation(instructions, currentIndex, copy);
+    currentIndex += OPERATIONS[instructions[0]].incrementPointerBy;
+    instruction = OPERATIONS['READ'].fn(copy, currentIndex);
   }
 
   return copy;
 }
 
-/// Part 2
-const find19690720 = list => {
-  for (let noun = 0; noun < 100; noun++) {
-    for (let verb = 0; verb < 100; verb++) {
-      const copy = [...list];
-      copy[1] = noun;
-      copy[2] = verb;
-      const updated = run(copy);
-      if (updated[0] === 19690720) { return [noun, verb] }
-    }
-  }
-  // If not found
-  return [-1, -1];
-} 
-
-export { run, find19690720 };
+export { run };
