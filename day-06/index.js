@@ -1,4 +1,4 @@
-import { split, compose, reduce, map, isEmpty } from 'ramda';
+import { split, compose, reduce, map, isEmpty, findIndex, equals, add, reduced, find } from 'ramda';
 /*
 * Node = {
 *   id: Int,
@@ -32,10 +32,14 @@ const countOrbitsOfNode = (node, nodes) => {
 
 const countOrbitsOfTree = tree => reduce((total, node) => total + countOrbitsOfNode(node, tree), 0, Object.values(tree));
 
+const createTreeFromTxt = compose(
+  createTree,
+  map(split(')')),
+)
+
 const totalOrbits = compose(
   countOrbitsOfTree,
-  createTree,
-  map(split(')'))
+  createTreeFromTxt,
 );
 
 const pathToRoot = (tree, node) => {
@@ -47,4 +51,25 @@ const findCommonElement = (list1, list2) => {
   return list1.filter(x => list2.includes(x))[0]
 }
 
-export { totalOrbits, pathToRoot, createTree, findCommonElement }
+const pathsToYOUandSAN = tree => [
+  pathToRoot(tree, tree['YOU']),
+  pathToRoot(tree, tree['SAN'])
+]
+
+const findSharedPlanetAndZip = (paths) => {
+  const [path1, path2] = paths;
+  const sharedPlanet = findCommonElement(path1, path2);
+  return map(path => [path, sharedPlanet], paths);
+}
+
+const amountPaths = ([path, planet]) => findIndex(equals(planet), path)
+
+const stepsYOUtoSAN = compose(
+  reduce(add, 0),
+  map(amountPaths),
+  findSharedPlanetAndZip,
+  pathsToYOUandSAN,
+  createTreeFromTxt
+)
+
+export { totalOrbits, pathToRoot, createTree, findCommonElement, stepsYOUtoSAN }
