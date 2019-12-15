@@ -21,26 +21,26 @@ const addEdge = (parentId, childId, nodes) => {
 
   parentNode.children = [childNode, ...parentNode.children];
   childNode.parent = parentNode;
-}
+};
 
 const countOrbitsOfNode = node => {
   if (isEmpty(node.parent)) return 0;
   return 1 + countOrbitsOfNode(node.parent);
-}
+};
 
-const countOrbits = tree => reduce((total, node) => total + countOrbitsOfNode(node), 0, tree.values());
+const countOrbitsOfTree = tree => reduce((total, node) => total + countOrbitsOfNode(node), 0, tree.values());
 
 const createTree = reduce((tree, [parentId, childId]) => {
   if (!tree.has(parentId)) { addNode(parentId, tree); }
   if (!tree.has(childId)) { addNode(childId, tree); }
   addEdge(parentId, childId, tree);
   return tree;
-}, new Map())
+}, new Map());
 
-const entry1 = compose(
-  countOrbits,
+const totalOrbits = compose(
+  countOrbitsOfTree,
   createTree,
   map(split(')'))
-)
+);
 
-export { entry1 }
+export { totalOrbits }
