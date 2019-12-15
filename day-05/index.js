@@ -1,7 +1,5 @@
 import { add, multiply, toString, reverse, map, curry, zip, isNil } from 'ramda';
 
-const mapWithIndex = curry((fn, list) => list.map(fn));
-
 let USER_INPUT = 0;
 let OUTPUT = 0;
 
@@ -13,7 +11,6 @@ const resolveValue = (list, [mode, parameter]) => {
   }
 }
 
-// [function, incrementPointerBy]
 const OPERATIONS = {
   '01': {
     // Add and store at address
@@ -62,8 +59,7 @@ const PARAMETER_MODE = {
   immediate: '1', // parameter is the value itself
 }
 
-const performOperation = (opcode, modes, startPointer, list) => {
-  const op = OPERATIONS[opcode].fn(list);
+const performOperation = (op, modes, startPointer, list) => {
   const parameters = [1, 2, 3].map(x => {
     return list[startPointer + x];
   })
@@ -84,15 +80,16 @@ const parseInstruction = instruction => {
 
 const run = (list, input) => {  
   USER_INPUT = input;
-  const copy = [...list];
-  let instruction = copy[0];
+  const memory = [...list];
+  let instruction = memory[0];
   let currentPointer = 0;
 
   while (instruction !== 99) {
     const [opcode, modes] = parseInstruction(instruction);
-    performOperation(opcode, modes, currentPointer, copy);
-    currentPointer += OPERATIONS[opcode].incrementPointerBy;
-    instruction = OPERATIONS['READ'].fn(copy, currentPointer);
+    const operation = OPERATIONS[opcode];
+    performOperation(operation.fn(memory), modes, currentPointer, memory);
+    currentPointer += operation.incrementPointerBy;
+    instruction = OPERATIONS['READ'].fn(memory, currentPointer);
   }
 
   return OUTPUT;
