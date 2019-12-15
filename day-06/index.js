@@ -23,19 +23,19 @@ const addEdge = (parentId, childId, nodes) => {
   childNode.parent = parentNode;
 };
 
-const countOrbitsOfNode = node => {
-  if (isEmpty(node.parent)) return 0;
-  return 1 + countOrbitsOfNode(node.parent);
-};
-
-const countOrbitsOfTree = tree => reduce((total, node) => total + countOrbitsOfNode(node), 0, tree.values());
-
 const createTree = reduce((tree, [parentId, childId]) => {
   if (!tree.has(parentId)) { addNode(parentId, tree); }
   if (!tree.has(childId)) { addNode(childId, tree); }
   addEdge(parentId, childId, tree);
   return tree;
 }, new Map());
+
+const countOrbitsOfNode = node => {
+  if (isEmpty(node.parent)) return 0;
+  return 1 + countOrbitsOfNode(node.parent);
+};
+
+const countOrbitsOfTree = tree => reduce((total, node) => total + countOrbitsOfNode(node), 0, tree.values());
 
 const totalOrbits = compose(
   countOrbitsOfTree,
