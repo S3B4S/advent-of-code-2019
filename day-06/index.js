@@ -43,4 +43,8 @@ const pathToRoot = (tree, node) => {
   return [node.parent.id, ...pathToRoot(tree, node.parent)];
 }
 
-export { totalOrbits, pathToRoot, createTree }
+const findCommonElement = (list1, list2) => {
+  return list1.filter(x => list2.includes(x))[0]
+}
+
+export { totalOrbits, pathToRoot, createTree, findCommonElement }

@@ -1,6 +1,6 @@
 import fs from 'fs';
 import { split, isEmpty, filter, not, compose, map } from 'ramda';
-import { totalOrbits, pathToRoot, createTree } from './index';
+import { totalOrbits, pathToRoot, createTree, findCommonElement } from './index';
 
 // Read in data and clean it
 const txt = fs.readFileSync('./day-06/input.txt', 'utf8');
@@ -65,6 +65,11 @@ test('Pass the puzzle input for part 1', () => {
   )
   expect(pathToRoot(tree, tree['YOU'])).toEqual(['K', 'J', 'E', 'D', 'C', 'B', 'COM']);
   expect(pathToRoot(tree, tree['COM'])).toEqual([]);
+});
+
+test('Find common element', () => {
+  expect(findCommonElement([1, 2, 3], [3, 4, 5])).toEqual(3);
+  expect(findCommonElement(['a', 'b', 'c'], ['g', 'b', 'd'])).toEqual('b');
 });
 
 test('Path to root constructed properly', () => {
