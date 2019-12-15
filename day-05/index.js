@@ -3,60 +3,54 @@ import { add, multiply, toString, reverse, map, curry, zip, isNil } from 'ramda'
 let USER_INPUT = 0;
 let OUTPUT = 0;
 
+const PARAMETER_MODE = {
+  position: '0', // parameter interpreted as position where to retrieve value
+  immediate: '1', // parameter is the value itself
+}
+
+const OPERATIONS = {
+  // Add and store at address
+  '01': curry((list, pointer, aMode, bMode, addressMode) => {
+    const a = resolveValue(list, aMode);
+    const b = resolveValue(list, bMode);
+    const [_, address] = addressMode;
+    list[address] = a + b;
+    return pointer + 4;
+  }),
+
+  // Multiply and store at address
+  '02': curry((list, pointer, aMode, bMode, addressMode) => {
+    const a = resolveValue(list, aMode);
+    const b = resolveValue(list, bMode);
+    const [_, address] = addressMode;
+    list[address] = a * b;
+    return pointer + 4;
+  }),
+
+  // Write user input to address
+  '03': curry((list, pointer, addressMode) => {
+    const [_, address] = addressMode;
+    list[address] = USER_INPUT;
+    return pointer + 2;
+  }),
+
+  // Read from address and outputs it
+  '04': curry((list, pointer, addressMode) => {
+    const [_, address] = addressMode;
+    OUTPUT = list[address];
+    return pointer + 2;
+  }),
+
+  // Return position at address
+  'READ': curry((list, address) => list[address]),
+}
+
 const resolveValue = (list, [mode, parameter]) => {
   if (mode === PARAMETER_MODE.immediate) {
     return parameter;
   } else if (mode === PARAMETER_MODE.position) {
-    return OPERATIONS['READ'].fn(list, parameter)
+    return OPERATIONS['READ'](list, parameter)
   }
-}
-
-const OPERATIONS = {
-  '01': {
-    // Add and store at address
-    fn: curry((list, pointer, aMode, bMode, addressMode) => {
-      const a = resolveValue(list, aMode);
-      const b = resolveValue(list, bMode);
-      const [_, address] = addressMode;
-      list[address] = a + b;
-      return pointer + 4;
-    })
-  },
-  '02': {
-    // Multiply and store at address
-    fn: curry((list, pointer, aMode, bMode, addressMode) => {
-      const a = resolveValue(list, aMode);
-      const b = resolveValue(list, bMode);
-      const [_, address] = addressMode;
-      list[address] = a * b;
-      return pointer + 4;
-    })
-  },
-  '03': {
-    // Write user input to address
-    fn: curry((list, pointer, addressMode) => {
-      const [_, address] = addressMode;
-      list[address] = USER_INPUT;
-      return pointer + 2;
-    })
-  },
-  '04': {
-    // Read from address and outputs it
-    fn: curry((list, pointer, addressMode) => {
-      const [_, address] = addressMode;
-      OUTPUT = list[address];
-      return pointer + 2;
-    })
-  },
-  'READ': {
-    // Return position at address
-    fn: curry((list, address) => list[address]),
-  }
-}
-
-const PARAMETER_MODE = {
-  position: '0', // parameter interpreted as position where to retrieve value
-  immediate: '1', // parameter is the value itself
 }
 
 const performOperation = (op, modes, { currentPointer }, list) => {
@@ -88,11 +82,10 @@ const run = (list, input) => {
 
   while (state.instruction !== 99) {
     const [opcode, modes] = parseInstruction(state);
-    const operation = OPERATIONS[opcode];
-    const newPointer = performOperation(operation.fn(memory, state.currentPointer), modes, state, memory);
+    const newPointer = performOperation(OPERATIONS[opcode](memory, state.currentPointer), modes, state, memory);
     state = {
       currentPointer: newPointer,
-      instruction: OPERATIONS['READ'].fn(memory, newPointer),
+      instruction: OPERATIONS['READ'](memory, newPointer),
     }
   }
 
