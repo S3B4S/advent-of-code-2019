@@ -14,39 +14,39 @@ const resolveValue = (list, [mode, parameter]) => {
 const OPERATIONS = {
   '01': {
     // Add and store at address
-    fn: curry((list, aMode, bMode, addressMode) => {
+    fn: curry((list, pointer, aMode, bMode, addressMode) => {
       const a = resolveValue(list, aMode);
       const b = resolveValue(list, bMode);
       const [_, address] = addressMode;
       list[address] = a + b;
-    }),
-    incrementPointerBy: 4,
+      return pointer + 4;
+    })
   },
   '02': {
     // Multiply and store at address
-    fn: curry((list, aMode, bMode, addressMode) => {
+    fn: curry((list, pointer, aMode, bMode, addressMode) => {
       const a = resolveValue(list, aMode);
       const b = resolveValue(list, bMode);
       const [_, address] = addressMode;
       list[address] = a * b;
-    }),
-    incrementPointerBy: 4,
+      return pointer + 4;
+    })
   },
   '03': {
     // Write user input to address
-    fn: curry((list, addressMode) => {
+    fn: curry((list, pointer, addressMode) => {
       const [_, address] = addressMode;
       list[address] = USER_INPUT;
-    }),
-    incrementPointerBy: 2,
+      return pointer + 2;
+    })
   },
   '04': {
     // Read from address and outputs it
-    fn: curry((list, addressMode) => {
+    fn: curry((list, pointer, addressMode) => {
       const [_, address] = addressMode;
       OUTPUT = list[address];
-    }),
-    incrementPointerBy: 2,
+      return pointer + 2;
+    })
   },
   'READ': {
     // Return position at address
@@ -59,15 +59,15 @@ const PARAMETER_MODE = {
   immediate: '1', // parameter is the value itself
 }
 
-const performOperation = (op, modes, startPointer, list) => {
+const performOperation = (op, modes, { currentPointer }, list) => {
   const parameters = [1, 2, 3].map(x => {
-    return list[startPointer + x];
+    return list[currentPointer + x];
   })
   const parametersAndModes = zip(modes, parameters);
-  op(...parametersAndModes);
+  return op(...parametersAndModes);
 }
 
-const parseInstruction = instruction => {
+const parseInstruction = ({ instruction }) => {
   let chars = toString(instruction);
   // An instruction has in between 1-5 chars
   // missing chars are leading zeros and should be filled up to 5 chars
@@ -81,15 +81,19 @@ const parseInstruction = instruction => {
 const run = (list, input) => {  
   USER_INPUT = input;
   const memory = [...list];
-  let instruction = memory[0];
-  let currentPointer = 0;
+  let state = {
+    instruction: memory[0],
+    currentPointer: 0,
+  }
 
-  while (instruction !== 99) {
-    const [opcode, modes] = parseInstruction(instruction);
+  while (state.instruction !== 99) {
+    const [opcode, modes] = parseInstruction(state);
     const operation = OPERATIONS[opcode];
-    performOperation(operation.fn(memory), modes, currentPointer, memory);
-    currentPointer += operation.incrementPointerBy;
-    instruction = OPERATIONS['READ'].fn(memory, currentPointer);
+    const newPointer = performOperation(operation.fn(memory, state.currentPointer), modes, state, memory);
+    state = {
+      currentPointer: newPointer,
+      instruction: OPERATIONS['READ'].fn(memory, newPointer),
+    }
   }
 
   return OUTPUT;
