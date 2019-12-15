@@ -94,11 +94,11 @@ const OPERATIONS = {
   'READ': curry((memory, address) => memory[address]),
 }
 
-const performOperation = (op, modes, { currentPointer }, list) => {
+const performOperation = (op, modes, { currentPointer }, memory) => {
   const operationParameters = compose(
     map(OperationParameter),
     flip(zip)(modes),
-    map(x => list[currentPointer + x])
+    map(x => memory[currentPointer + x])
   )([1, 2, 3])
   return op(...operationParameters);
 }
@@ -114,9 +114,9 @@ const parseInstruction = ({ instruction }) => {
   return [opcode.join(''), [first, second, third]]
 }
 
-const run = (list, input) => {  
+const run = (freshMemory, input) => {  
   USER_INPUT = input;
-  const memory = [...list];
+  const memory = [...freshMemory];
   let state = {
     instruction: memory[0],
     currentPointer: 0,
