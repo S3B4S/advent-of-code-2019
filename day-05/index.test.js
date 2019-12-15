@@ -11,8 +11,19 @@ test('Pass the puzzle input for part 1', () => {
   expect(run(inputData, 1)).toEqual(15314507);
 });
 
-test('Pass the examples for part 2', () => {
+// Check if input is equal to 8, 1 if it is, else 0.
+test('Check if input is equal to 8', () => {
+  expect(run([3,9,8,9,10,9,4,9,99,-1,8], 8)).toEqual(1);
+  expect(run([3,9,8,9,10,9,4,9,99,-1,8], 9)).toEqual(0);
+});
+
+test('Check if input is less than 8', () => {
+  // Check if input is less than 8, 1 if it is, else 0.
+  expect(run([3,9,7,9,10,9,4,9,99,-1,8], 6)).toEqual(1);
+  expect(run([3,9,7,9,10,9,4,9,99,-1,8], 7)).toEqual(1);
+  expect(run([3,9,7,9,10,9,4,9,99,-1,8], 9)).toEqual(0);
 });
 
 test('Pass the puzzle input for part 2', () => {
+  expect(run(inputData, 5)).toEqual(652726);
 });

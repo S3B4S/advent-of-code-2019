@@ -10,46 +10,78 @@ const PARAMETER_MODE = {
 
 const OPERATIONS = {
   // Add and store at address
-  '01': curry((list, pointer, aMode, bMode, addressMode) => {
-    const a = resolveValue(list, aMode);
-    const b = resolveValue(list, bMode);
+  '01': curry((memory, pointer, aMode, bMode, addressMode) => {
+    const a = resolveValue(memory, aMode);
+    const b = resolveValue(memory, bMode);
     const [_, address] = addressMode;
-    list[address] = a + b;
+    memory[address] = a + b;
     return pointer + 4;
   }),
 
   // Multiply and store at address
-  '02': curry((list, pointer, aMode, bMode, addressMode) => {
-    const a = resolveValue(list, aMode);
-    const b = resolveValue(list, bMode);
+  '02': curry((memory, pointer, aMode, bMode, addressMode) => {
+    const a = resolveValue(memory, aMode);
+    const b = resolveValue(memory, bMode);
     const [_, address] = addressMode;
-    list[address] = a * b;
+    memory[address] = a * b;
     return pointer + 4;
   }),
 
   // Write user input to address
-  '03': curry((list, pointer, addressMode) => {
+  '03': curry((memory, pointer, addressMode) => {
     const [_, address] = addressMode;
-    list[address] = USER_INPUT;
+    memory[address] = USER_INPUT;
     return pointer + 2;
   }),
 
   // Read from address and outputs it
-  '04': curry((list, pointer, addressMode) => {
+  '04': curry((memory, pointer, addressMode) => {
     const [_, address] = addressMode;
-    OUTPUT = list[address];
+    OUTPUT = memory[address];
     return pointer + 2;
   }),
 
+  // If first parameter is non-zero, set the instruction pointer to second parameter
+  '05': curry((memory, pointer, numberMode, newPointerMode) => {
+    const number = resolveValue(memory, numberMode);
+    const newPointer = resolveValue(memory, newPointerMode);
+    return number !== 0 ? newPointer : pointer + 3;
+  }),
+
+  // If first parameter is zero, set the instruction pointer to second parameter
+  '06': curry((memory, pointer, numberMode, newPointerMode) => {
+    const number = resolveValue(memory, numberMode);
+    const newPointer = resolveValue(memory, newPointerMode);
+    return number === 0 ? newPointer : pointer + 3;
+  }),
+
+  // If first parameter less than second parameter, store 1 in position given by third parameter, else 0.
+  '07': curry((memory, pointer, aMode, bMode, addressMode) => {
+    const a = resolveValue(memory, aMode);
+    const b = resolveValue(memory, bMode);
+    const [_, address] = addressMode;
+    memory[address] = a < b ? 1 : 0;
+    return pointer + 4;
+  }),
+
+  // If first parameter equal to second parameter, store 1 in position given by third parameter, else 0.
+  '08': curry((memory, pointer, aMode, bMode, addressMode) => {
+    const a = resolveValue(memory, aMode);
+    const b = resolveValue(memory, bMode);
+    const [_, address] = addressMode;
+    memory[address] = a === b ? 1 : 0;
+    return pointer + 4;
+  }),
+
   // Return position at address
-  'READ': curry((list, address) => list[address]),
+  'READ': curry((memory, address) => memory[address]),
 }
 
-const resolveValue = (list, [mode, parameter]) => {
+const resolveValue = (memory, [mode, parameter]) => {
   if (mode === PARAMETER_MODE.immediate) {
     return parameter;
   } else if (mode === PARAMETER_MODE.position) {
-    return OPERATIONS['READ'](list, parameter)
+    return OPERATIONS['READ'](memory, parameter)
   }
 }
 
