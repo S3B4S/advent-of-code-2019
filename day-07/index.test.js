@@ -1,12 +1,13 @@
 import fs from 'fs';
 import { } from 'ramda';
-import { } from './index';
+import { main } from './index';
 
 // Read in data and clean it
-const txt = fs.readFileSync('./day-07/input.txt', 'utf8');
-const inputData; // Create input data as appropriate
+// const txt = fs.readFileSync('./day-07/input.txt', 'utf8');
+// const inputData; // Create input data as appropriate
 
 test('Pass the examples for part 1', () => {
+  main();
 });
 
 test('Pass the puzzle input for part 1', () => {
