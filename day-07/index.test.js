@@ -2,7 +2,7 @@ import fs from 'fs';
 import { filter, split, map } from 'ramda';
 import { combinationsOfSequence, mapTree, findMaxThrusterSignal } from './index';
 import { isNotEmpty, isNotNaN } from '../utils';
-import { run } from './intcode';
+import program from './intcode';
 
 // Read in data and clean it
 const txt = fs.readFileSync('./day-07/input.txt', 'utf8');
@@ -19,15 +19,15 @@ test('Amount of unique combinations is 120 for 5 characters', () => {
 
 test('Sequence of amplifiers', () => {
   const memory = [3,15,3,16,1002,16,10,16,1,16,15,15,4,15,99,0,0];
-  const output1 = run(memory, [0, 4]);
+  const output1 = program.run(memory, [0, 4]);
   expect(output1).toEqual(4);
-  const output2 = run(memory, [4, 3]);
+  const output2 = program.run(memory, [4, 3]);
   expect(output2).toEqual(43);
-  const output3 = run(memory, [43, 2]);
+  const output3 = program.run(memory, [43, 2]);
   expect(output3).toEqual(432);
-  const output4 = run(memory, [432, 1]);
+  const output4 = program.run(memory, [432, 1]);
   expect(output4).toEqual(4321);
-  const output5 = run(memory, [4321, 0]);
+  const output5 = program.run(memory, [4321, 0]);
   expect(output5).toEqual(43210);
 });
 

@@ -1,5 +1,5 @@
 import { map, filter, reduce, max, compose, curry } from 'ramda';
-import { run } from './intcode';
+import program from './intcode';
 import { isNotEmpty } from '../utils';
 
 const createNode = value => ({
@@ -47,12 +47,7 @@ export const mapTree = curry((fn, root) => {
   return results
 })
 
-const runAmplifiers = memory => phaseSettings => {
-  const outputAmplifierE = reduce((inputSignal, phaseSetting) => {
-    return run(memory, [inputSignal, phaseSetting])
-  }, 0, phaseSettings);
-  return outputAmplifierE;
-}
+const runAmplifiers = memory => reduce((inputSignal, phaseSetting) => program.run(memory, [inputSignal, phaseSetting]), 0);
 
 export const findMaxThrusterSignal = memory => compose(
   reduce(max, 0),

@@ -1,6 +1,6 @@
 import { toString, map, curry, zip, compose, flip } from 'ramda';
 
-let INPUT = 0;
+let INPUT = [];
 let OUTPUT = 0;
 
 class OPERATION_PARAMETER {
@@ -117,7 +117,7 @@ const parseInstruction = ({ instruction }) => {
 /**
  * Main entry to run the Intcode program.
  * @param {[Int]} freshMemory Memory supplied to the program to be modified, a copy is made so the original isn't mutated.
- * @param {[Int]} input This is treated as a stack, so first input to be called should be placed last.
+ * @param {[Int]} input This is treated as a queue, so first input to be called should be placed last.
  */
 const run = (freshMemory, input) => {
   INPUT = input;
@@ -139,4 +139,6 @@ const run = (freshMemory, input) => {
   return OUTPUT;
 }
 
-export { run };
+const add = input => { INPUT.unshift(input) };
+
+export default { run, add };
