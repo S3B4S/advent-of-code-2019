@@ -56,9 +56,9 @@ const runAmplifiers = memory => phaseSettings => {
 
 export const findMaxThrusterSignal = memory => compose(
   reduce(max, 0),
-  map(runAmplifiers(memory)),
-  map(map(parseInt)),
-  filter(isNotEmpty),
-  mapTree(x => x.children.length === 0 ? x.value : []),
+  map(runAmplifiers(memory)), // For eah sequence, run the phase program and collect outputs of amplifier E
+  map(map(parseInt)), // Turn all chars to ints to supply to the program
+  filter(isNotEmpty), // Non-leaves return empty arrays, filter those out
+  mapTree(x => x.children.length === 0 ? x.value : []), // Collect values of leaves
   combinationsOfSequence,
 )
