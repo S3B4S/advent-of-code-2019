@@ -1,9 +1,9 @@
 import fs from 'fs';
 import { compose, map, split, not, filter } from 'ramda';
 import { run } from './index';
+import { isNotNaN } from '../utils'
 
 // Read in data and clean it
-const isNotNaN = compose(not, isNaN);
 const txt = fs.readFileSync('./day-05/input.txt', 'utf8');
 const inputData = filter(isNotNaN, map(parseInt, split(',', txt)));
 

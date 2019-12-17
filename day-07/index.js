@@ -1,14 +1,13 @@
-import { map, isEmpty, filter, not, compose } from 'ramda';
+import { map, filter, reduce, max, compose, curry } from 'ramda';
 import { run } from './intcode';
-
-const isNotEmpty = compose(not, isEmpty);
+import { isNotEmpty } from '../utils';
 
 const createNode = value => ({
   value: value,
   children: [],
 })
 
-const combinationsOfSequence = sequence => {
+export const combinationsOfSequence = sequence => {
   const root = {
     value: [],
     children: [],
@@ -32,7 +31,7 @@ const generateChildren = (root, sequence) => {
 
 // Traverse the tree and map each node with given function
 // mapTree :: (Node -> a) -> Tree -> [a]
-const mapTree = (fn, root) => {
+export const mapTree = curry((fn, root) => {
   const stack = [root];
   let currentNode = root;
   const results = [];
@@ -46,11 +45,20 @@ const mapTree = (fn, root) => {
   }
 
   return results
+})
+
+const runAmplifiers = memory => phaseSettings => {
+  const outputAmplifierE = reduce((inputSignal, phaseSetting) => {
+    return run(memory, [inputSignal, phaseSetting])
+  }, 0, phaseSettings);
+  return outputAmplifierE;
 }
 
-const main = () => {
-  const tree = combinationsOfSequence(['1', '2', '3', '4', '5']);
-  const res = mapTree(x => x.children.length === 0 ? x.value : [], tree);
-}
-
-export { isNotEmpty, combinationsOfSequence, mapTree, main }
+export const findMaxThrusterSignal = memory => compose(
+  reduce(max, 0),
+  map(runAmplifiers(memory)),
+  map(map(parseInt)),
+  filter(isNotEmpty),
+  mapTree(x => x.children.length === 0 ? x.value : []),
+  combinationsOfSequence,
+)

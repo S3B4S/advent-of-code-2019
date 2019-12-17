@@ -1,9 +1,7 @@
-import { toString, reverse, map, curry, zip, compose, flip } from 'ramda';
+import { toString, map, curry, zip, compose, flip } from 'ramda';
 
-let PHASE_SETTING = -1;
 let INPUT = 0;
 let OUTPUT = 0;
-let AMOUNT_INPUT_INSTRUCTIONS = 0;
 
 class OPERATION_PARAMETER {
   constructor(value, mode) {
@@ -49,12 +47,7 @@ const OPERATIONS = {
   // Write user input to address
   '03': curry((memory, pointer, opAdress) => {
     const address = opAdress.value;
-    if (AMOUNT_INPUT_INSTRUCTIONS === 0) {
-      memory[address] = PHASE_SETTING;
-    } else if (AMOUNT_INPUT_INSTRUCTIONS === 1) {
-      memory[address] = INPUT;
-    }
-    AMOUNT_INPUT_INSTRUCTIONS += 1;
+    memory[address] = INPUT.pop();
     return pointer + 2;
   }),
 
@@ -121,8 +114,12 @@ const parseInstruction = ({ instruction }) => {
   return [opcode.join(''), [first, second, third]]
 }
 
-const run = (freshMemory, phaseSetting, input) => {
-  PHASE_SETTING = phaseSetting;
+/**
+ * Main entry to run the Intcode program.
+ * @param {[Int]} freshMemory Memory supplied to the program to be modified, a copy is made so the original isn't mutated.
+ * @param {[Int]} input This is treated as a stack, so first input to be called should be placed last.
+ */
+const run = (freshMemory, input) => {
   INPUT = input;
   const memory = [...freshMemory];
   let state = {
