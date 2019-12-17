@@ -1,47 +1,56 @@
-import { map, isEmpty } from 'ramda';
+import { map, isEmpty, filter, not, compose } from 'ramda';
 import { run } from './intcode';
 
-const SEQUENCE = ['1', '2', '3', '4', '5'];
+const isNotEmpty = compose(not, isEmpty);
 
 const createNode = value => ({
   value: value,
   children: [],
 })
 
-const root = {
-  value: [],
-  children: [],
+const combinationsOfSequence = sequence => {
+  const root = {
+    value: [],
+    children: [],
+  }
+  generateChildren(root, sequence);
+  return root;
 }
 
-const generateChildren = node => {
-  const remainingChars = SEQUENCE.filter(x => !node.value.includes(x));
+const generateChildren = (root, sequence) => {
+  const remainingChars = sequence.filter(x => !root.value.includes(x));
   if (remainingChars.length === 0) return;
 
   for (const remainingChar of remainingChars) {
-    node.children.push(createNode([...node.value, remainingChar]));
+    root.children.push(createNode([...root.value, remainingChar]));
   }
 
-  for (const child of node.children) {
-    generateChildren(child);
+  for (const child of root.children) {
+    generateChildren(child, sequence);
   }
 }
 
-const collectLeaves = root => {
-  if (isEmpty(root.children)) {
-    return root.value
+// Traverse the tree and map each node with given function
+// mapTree :: (Node -> a) -> Tree -> [a]
+const mapTree = (fn, root) => {
+  const stack = [root];
+  let currentNode = root;
+  const results = [];
+
+  while (stack.length !== 0) {
+    currentNode = stack.pop();
+    for (const child of currentNode.children) {
+      stack.push(child);
+    }
+    results.push(fn(currentNode));
   }
 
-  const a = [];
-  for (const child of root.children) {
-    a.push(collectLeaves(child));
-  }
-  console.log(a);
+  return results
 }
 
 const main = () => {
-  generateChildren(root);
-  console.log(JSON.stringify(root, null, 2));
-  collectLeaves(root);
+  const tree = combinationsOfSequence(['1', '2', '3', '4', '5']);
+  const res = mapTree(x => x.children.length === 0 ? x.value : [], tree);
 }
 
-export { main }
+export { isNotEmpty, combinationsOfSequence, mapTree, main }
